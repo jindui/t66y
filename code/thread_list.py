@@ -1,16 +1,11 @@
 # coding= utf-8
 import requests
 from bs4 import BeautifulSoup
-
+from  t66y_html import getHtml
 
 def thread_list(url):
-	proxies = {
-	  "http": "http://127.0.0.1:1080",
-	}
 	try:
-		r = requests.get(url, proxies=proxies)
-		r.encoding='gbk'
-		soup = BeautifulSoup(r.text,"lxml")
+		soup = BeautifulSoup(getHtml(url),"lxml")
 		alist = soup.find_all("a",id=True,target="_blank")
 		result = []
 		for child in alist:
