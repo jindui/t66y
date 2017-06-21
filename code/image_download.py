@@ -39,16 +39,16 @@ def download(dirPath,fileName,url):
     print fileName
 
 if __name__ == "__main__":
-    print ["http://t66y.com/thread0806.php?fid=16&search=&page=%d"%i for i in  range(1,10)]
-    # result = searchImage("http://t66y.com/thread0806.php?fid=16&search=&page=1")
-    # print "search over"
-    # pool = Pool(processes=10)  # start 10 worker processes
-    # for k, v in result.iteritems():
-    #     dirPath = markDir(k)
-    #     for path in v:
-    #         pool.apply_async(download, (dirPath, os.path.basename(path), path))
-    # pool.close()
-    # pool.join()
+    #print ["http://t66y.com/thread0806.php?fid=16&search=&page=%d"%i for i in  range(1,10)]
+    result = searchImage("http://t66y.com/thread0806.php?fid=16&search=&page=1")
+    print "search over"
+    pool = Pool(processes=10)  # start 10 worker processes
+    for k, v in result.iteritems():
+        dirPath = markDir(k)
+        for path in v:
+            pool.apply_async(download, (dirPath, os.path.basename(path), path))
+    pool.close()
+    pool.join()
 
 
 
