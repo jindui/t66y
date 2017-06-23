@@ -1,7 +1,7 @@
 # coding= utf-8
 import requests
 from bs4 import BeautifulSoup
-from thread_list import thread_list
+from t66y_thread import thread_list
 from download_count import download_count
 
 list = thread_list("http://t66y.com/thread0806.php?fid=2&search=&page=45")

@@ -1,7 +1,7 @@
 # coding= utf-8
 import requests	
 from bs4 import BeautifulSoup
-from thread_list import thread_list
+from t66y_thread import thread_list
 
 txt = "1Pondo-072216_344".decode("utf-8")
 page_list = [i for i in range(46, 100)]  
