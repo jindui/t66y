@@ -5,7 +5,7 @@ import click
 @click.argument('name')
 def hello(count, name):
     for x in range(count):
-        click.echo('Hello %s!' % name)
+        click.echo('你好 %s!' % name)
 
 if __name__ == '__main__':
     hello()
