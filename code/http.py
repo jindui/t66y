@@ -22,5 +22,9 @@ def getHtml(url,timeout=5):
 
 def getContent(url,timeout=5):
     """获取二进制内容"""
-    r = requests.get(url, proxies=proxies,timeout=timeout)
+    try:
+        r = requests.get(url, proxies=proxies,timeout=timeout)
+    except requests.exceptions.RequestException as e:
+        print e
+        return ""
     return r.content

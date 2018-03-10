@@ -1,12 +1,16 @@
 # coding= utf-8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 import requests
 import os
 import json
+import datetime
 from multiprocessing import Pool, TimeoutError
 from http import getHtml, getContent
 from bs4 import BeautifulSoup
 from t66y_thread import thread_list,post_date_soup
-
+import threadpool
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -19,38 +23,75 @@ def searchImage(url,date):
     :return:
     '''
     result = {}
+    imagePathAry=[]
     for a in thread_list(url):
 
             soup = BeautifulSoup(getHtml(a["href"]), "lxml")
-            if post_date_soup(soup) == date:
+            if post_date_soup(soup) >= date:
+                pdate=post_date_soup(soup)
                 imglist = soup.find_all("input", type="image")
                 if len(imglist) > 3:
-                    imagePathAry = [img["src"] for img in imglist]
-                    result[a["title"]] = imagePathAry
+                    for img in imglist:
+                   #     if(len(img["src"])) > 5:
+                            imagePathAry.append(img["src"])
+                num = a["href"].split('/')[-1]
+                dir_path = current_dir + "/data/" + pdate
+                dir_path = markDir(dir_path)
+                dir_path = markDir(dir_path + "/" + num.split('.')[0])
+                downloadmuimage(dir_path, a["title"],imagePathAry)
+                   # imagePathAry = [img["src"] for img in imglist]
+                result[a["title"]] = imagePathAry
 
     return result
 
-def markDir(folderName):
+def downloadmuimage(dir_path,title,imagePathAry):
+
+    markreadme(dir_path,title)
+    pool = threadpool.ThreadPool(10)
+    fucimagelist=[]
+    for image in imagePathAry:
+        fucimagelist.append(([dir_path,image],None))
+    requests = threadpool.makeRequests(download, fucimagelist)
+    [pool.putRequest(req) for req in requests]
+    pool.wait()
+
+
+
+        # return
+
+def markreadme(dirPath,text):
+    fp = open(dirPath + "/" + "readme.txt", 'w')
+    fp.write(text)
+    fp.close()
+def markDir(dir_path):
     """创建目录"""
-    dir_path = current_dir+"/data/" + folderName
-    os.mkdir(dir_path)
+    if(os.path.exists(dir_path)):
+        return dir_path
+    else:
+        os.mkdir(dir_path)
     return dir_path
 
-def download(dirPath,fileName,url):
+
+def download(dirPath,url):
     try:
         pic = getContent(url)
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.RequestException as e:
     	print '图片无法下载'
-    fp = open(dirPath + "/" +fileName, 'wb')
+        print e
+        return 0
+    file_name = url.split('/')[-1]
+    fp = open(dirPath + "/" +file_name, 'wb')
     fp.write(pic)
     fp.close()
-    print fileName
+    print file_name
 
 if __name__ == "__main__":
     result = {}
-    for url in ["http://t66y.com/thread0806.php?fid=16&search=&page=%d"%i for i in range(1,20)]:
+    for url in ["http://t66y.com/thread0806.php?fid=16&search=&page=%d"%i for i in range(2,6)]:
         print "read %s"%url
-        result = dict(result, **searchImage(url,'2017-06-22'))
+        today=datetime.datetime.now().strftime("%Y-%m-%d")
+        today=u"2018-03-08"
+        result = dict(result, **searchImage(url,today))
     with open('2017-06-22.json', 'w') as fp:
         json.dump(result, fp)
 
