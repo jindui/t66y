@@ -22,12 +22,16 @@ def searchImage(url,date):
     :param date: 指定发布帖日期
     :return:
     '''
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
 
     for a in thread_list(url):
 
             soup = BeautifulSoup(getHtml(a["href"]), "lxml")
             if post_date_soup(soup) >= date:
                 pdate=post_date_soup(soup)
+                if pdate >today :
+                    pdate=today
+
                 imagePathAry=[]
                 imglist = soup.find_all("input", type="image")
                 if len(imglist) > 3:
@@ -54,10 +58,11 @@ def downloadmuimage(dir_path,title,imagePathAry):
     requests = threadpool.makeRequests(download, fucimagelist)
     [pool.putRequest(req) for req in requests]
     pool.wait()
+    pool.dismissWorkers(10, do_join=True)
 
 
 
-        # return
+    # return
 
 def markreadme(dirPath,text):
     fp = open(dirPath + "/" + "readme.txt", 'w')
